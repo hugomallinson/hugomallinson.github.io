@@ -6,4 +6,7 @@
 	.filter-section-container, .sui-jss5, .selected-list-opts, .menu-root, .filter-button-for-pad-and-mobile, .result-count-panel, #app-footer, #gartner-header {
 		display: none;
 	}
+	.all-card-grid {
+	page-break-inside: avoid;
+	}
 }
