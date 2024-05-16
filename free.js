@@ -1,6 +1,20 @@
 var DateTime = luxon.DateTime;
 const emailInput = document.getElementById('emailInput');
 const bubbleContainer = document.getElementById('bubbleContainer');
+
+const msalConfig = {
+    auth: {
+        clientId: '4dc59449-ed95-4b4e-aa49-c085a30ba5c2',
+        authority: 'https://login.microsoftonline.com/971f0e31-00d6-4e42-b8e0-47b342bc4455',
+        redirectUri: window.location.href.split('?')[0],
+    },
+    cache: {
+        cacheLocation: 'localStorage',
+        storeAuthStateInCookie: true
+    }
+};
+
+
 const msalInstance = new msal.PublicClientApplication(msalConfig);
 
 const loginRequest = {
@@ -63,17 +77,6 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-const msalConfig = {
-    auth: {
-        clientId: '4dc59449-ed95-4b4e-aa49-c085a30ba5c2',
-        authority: 'https://login.microsoftonline.com/971f0e31-00d6-4e42-b8e0-47b342bc4455',
-        redirectUri: window.location.href.split('?')[0],
-    },
-    cache: {
-        cacheLocation: 'localStorage',
-        storeAuthStateInCookie: true
-    }
-};
 
 function do_the_work() {
     msalInstance.loginPopup(loginRequest)
