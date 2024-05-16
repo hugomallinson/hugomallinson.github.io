@@ -1,6 +1,4 @@
 var DateTime = luxon.DateTime;
-const emailInput = document.getElementById('emailInput');
-const bubbleContainer = document.getElementById('bubbleContainer');
 
 const msalConfig = {
     auth: {
@@ -14,7 +12,6 @@ const msalConfig = {
     }
 };
 
-
 const msalInstance = new msal.PublicClientApplication(msalConfig);
 
 const loginRequest = {
@@ -26,25 +23,47 @@ let people = [];
 
 msalInstance.initialize();
 
-
-emailInput.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        document.getElementById("get_availability").click();
-    }
-});
-
-emailInput.addEventListener('input', () => {
-    const value = emailInput.value;
-    const lastChar = value.slice(-1);
-
-    if (lastChar === ',' || lastChar === ' ') {
-        const emailPart = value.slice(0, -1).trim();
-        if (isValidEmail(emailPart)) {
-            add_bubble(emailPart);
-            get_bubbles();
+$(document).ready(function() {
+    $('#start-time').timepicker();
+    $('#end-time').timepicker();
+    const params = new URLSearchParams(window.location.search);
+    const ppl_string = params.get('emails')
+    if (ppl_string) {
+        people = ppl_string.split(',');
+        for (let person of people) {
+            add_bubble(person);
         }
+        get_bubbles();
     }
+    
+    const emailInput = document.getElementById('emailInput');
+    const bubbleContainer = document.getElementById('bubbleContainer');
+    
+
+    emailInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("get_availability").click();
+        }
+    });
+
+    emailInput.addEventListener('input', () => {
+        const value = emailInput.value;
+        const lastChar = value.slice(-1);
+
+        if (lastChar === ',' || lastChar === ' ') {
+            const emailPart = value.slice(0, -1).trim();
+            if (isValidEmail(emailPart)) {
+                add_bubble(emailPart);
+                get_bubbles();
+            }
+        }
+    });
+
+    $('#loginBtn').click(function() {
+        do_the_work();
+    });
+
 });
 
 function add_bubble(emailPart) {
@@ -210,7 +229,9 @@ function find_free(result, startBy, endBy) {
             event.end = event.start.endOf('day');
             if (event.end > day_end) event.end = day_end;
             if (event.start < day_start) event.start = day_start;
-            more_events.push(event);
+            if (event.start < day_end) {
+                more_events.push(event);
+            }
             let new_event = {
                 start: original_end.startOf('day').plus(startBy),
                 end: original_end,
@@ -220,10 +241,13 @@ function find_free(result, startBy, endBy) {
             }
             more_events.push(new_event);
         } else {
-            if (event.start < day_start && event.end < day_start) {
+            if ((event.start < day_start) && (event.end < day_start)) {
                 continue;
             }
-            if (event.start < day_start && event.end > day_start) {
+            if (event.start > day_end) {
+                continue;
+            }
+            if ((event.start < day_start) && (event.end > day_start)) {
                 event.start = day_start;
             }
             if (event.end > day_end) {
@@ -253,21 +277,3 @@ function find_free(result, startBy, endBy) {
     return resultString;
 }
 
-$(document).ready(function() {
-    $('#start-time').timepicker();
-    $('#end-time').timepicker();
-    const params = new URLSearchParams(window.location.search);
-    const ppl_string = params.get('emails')
-    if (ppl_string) {
-        people = ppl_string.split(',');
-        for (let person of people) {
-            add_bubble(person);
-        }
-        get_bubbles();
-    }
-
-    $('#loginBtn').click(function() {
-        do_the_work();
-    });
-
-});
