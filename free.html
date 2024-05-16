@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS Graph API Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.14.0/lib/msal-browser.min.js"></script>
+</head>
+<body>
+    <h1>MS Graph API Example</h1>
+    <button id="loginBtn">Login</button>
+    <button id="getUserBtn" style="display:none;">Get User Info</button>
+    <div id="userInfo" style="display:none;">
+        <h2>User Info</h2>
+        <p><strong>Name:</strong> <span id="userName"></span></p>
+        <p><strong>Email:</strong> <span id="userEmail"></span></p>
+    </div>
+
+    <script>
+        const msalConfig = {
+            auth: {
+                clientId: '4dc59449-ed95-4b4e-aa49-c085a30ba5c2',
+                authority: 'https://login.microsoftonline.com/971f0e31-00d6-4e42-b8e0-47b342bc4455',
+                redirectUri: window.location.href
+            },
+            cache: {
+                cacheLocation: 'localStorage',
+                storeAuthStateInCookie: true
+            }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+        msalInstance.initialize();
+        
+
+        const loginRequest = {
+            scopes: ['user.read']
+        };
+
+        $(document).ready(function () {
+            $('#loginBtn').click(function () {
+                msalInstance.loginPopup(loginRequest)
+                    .then(response => {
+                        console.log('Login successful!', response);
+                        $('#loginBtn').hide();
+                        $('#getUserBtn').show();
+                    })
+                    .catch(error => {
+                        console.error('Login error:', error);
+                    });
+            });
+
+            $('#getUserBtn').click(function () {
+                msalInstance.acquireTokenSilent(loginRequest)
+                    .then(tokenResponse => {
+                        console.log('Token acquired:', tokenResponse);
+                        callGraphAPI(tokenResponse.accessToken);
+                    })
+                    .catch(error => {
+                        console.error('Token acquisition error:', error);
+                        msalInstance.acquireTokenPopup(loginRequest)
+                            .then(tokenResponse => {
+                                callGraphAPI(tokenResponse.accessToken);
+                            })
+                            .catch(error => {
+                                console.error('Token acquisition popup error:', error);
+                            });
+                    });
+            });
+        });
+
+        function callGraphAPI(accessToken) {
+            $.ajax({
+                url: 'https://graph.microsoft.com/v1.0/me',
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                },
+                success: function (response) {
+                    console.log('User info:', response);
+                    $('#userName').text(response.displayName);
+                    $('#userEmail').text(response.mail ? response.mail : response.userPrincipalName);
+                    $('#userInfo').show();
+                },
+                error: function (error) {
+                    console.error('Graph API call error:', error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
