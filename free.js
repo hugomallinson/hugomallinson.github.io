@@ -808,7 +808,6 @@ function find_free(result, startBy, endBy, tz) {
     let filteredEvents = freeBusyEvents.filter(event => (event.end.diff(event.start, 'minutes')) > (SMALLEST_BLOCK - 1));
 
     // move to destination time zone
-    #let tz = 'Europe/Paris';
     let more_events = [];
     for (let event of filteredEvents) {
         let day_start = event.start.startOf('day').plus(startBy);
