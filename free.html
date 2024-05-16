@@ -6,6 +6,7 @@
     <title>MS Graph API Example</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.14.0/lib/msal-browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
 </head>
 <body>
     <h1>MS Graph API Example</h1>
@@ -16,8 +17,58 @@
         <p><strong>Name:</strong> <span id="userName"></span></p>
         <p><strong>Email:</strong> <span id="userEmail"></span></p>
     </div>
-
+    <div id="bubbleContainer"></div>
+    <input type="text" id="emailInput" placeholder="Enter email addresses">
+    <button id="get_availability" onclick="updateEmailInput();" type="submit">Get Availability</button>
+    
     <script>
+        const emailInput = document.getElementById('emailInput');
+        const bubbleContainer = document.getElementById('bubbleContainer');
+        emailInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("get_availability").click();
+          }
+        });
+
+        emailInput.addEventListener('input', () => {
+          const value = emailInput.value;
+          const lastChar = value.slice(-1);
+
+          if (lastChar === ',' || lastChar === ' ') {
+            const emailPart = value.slice(0, -1).trim();
+
+            if (isValidEmail(emailPart)) {
+              const bubble = document.createElement('div');
+              const bubbleText = document.createElement('span');
+              bubble.className = 'bubble';
+              bubbleText.className = 'bubbleText';
+              bubbleText.textContent = emailPart;
+              bubble.appendChild(bubbleText);
+              const closeSpan = document.createElement('span');
+              closeSpan.innerHTML = "&#10006;";
+              closeSpan.addEventListener('click', () => {
+                bubble.remove();
+              });
+              bubble.appendChild(closeSpan);
+              bubbleContainer.appendChild(bubble);
+              emailInput.value = '';
+            }
+          }
+        });
+
+        function updateEmailInput() {
+          const bubbles = document.querySelectorAll('.bubbleText');
+          const emails = Array.from(bubbles).map(bubble => bubble.textContent);
+          const url = encodeURIComponent(emails.join(','));
+          href = window.location.href
+          window.location = window.location.href + '?emails=' + url;
+        }
+
+        function isValidEmail(email) {
+          const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return emailRegex.test(email);
+        }
         const msalConfig = {
             auth: {
                 clientId: '4dc59449-ed95-4b4e-aa49-c085a30ba5c2',
@@ -71,12 +122,19 @@
         });
 
         function callGraphAPI(accessToken) {
+            const start_time = DateTime.now().startOf('day');
+            const end_time = start_time.plus({ days: 60 });
             $.ajax({
-                url: 'https://graph.microsoft.com/v1.0/me',
-                method: 'GET',
+                url: 'https://graph.microsoft.com/v1.0/me/Calendar/GetSchedule',
+                method: 'POST',
                 headers: {
                     Authorization: 'Bearer ' + accessToken
                 },
+                body: {
+                    schedules: ['hugo.mallinson@gartner.com','rebecca.sweeney@gartner.com'],
+                    start_time: start_time.toISO(),
+                    end_time: end_time.toISO();
+                }
                 success: function (response) {
                     console.log('User info:', response);
                     $('#userName').text(response.displayName);
@@ -88,6 +146,74 @@
                 }
             });
         }
+        
+        // Import necessary libraries
+        //const arrow = require('arrow');
+
+        // Function to check if all people are available
+        function isAvailable(status) {
+          return Object.values(status).every(s => s === 'free');
+        }
+
+        // Convert the input code
+        let schedules = result.value.map(y => y.schedule_items
+          .filter(x => x.status !== 'free')
+          .map(x => [y.schedule_id, x.start.date_time, x.end.date_time]));
+
+        // Combine the two lists
+        let events = schedules.flatMap(calendars => calendars);
+
+        // Create pairs of busy and free events
+        events = events.flatMap(x => [[x[0], x[1], 'busy'], [x[0], x[2], 'free']]);
+
+        // Sort the events by start time
+        events.sort((a, b) => a[1].localeCompare(b[1]));
+
+        // Initialize the status object
+        let status = Object.fromEntries(people.map(p => [p, 'free']));
+
+        let freeBusyEvents = [];
+        let fbFree = false;
+        for (let event of events) {
+          status[event[0]] = event[2];
+          if (isAvailable(status) && !fbFree) {
+            fbStart = arrow.get(event[1]);
+            fbFree = true;
+          }
+          if (!isAvailable(status) && fbFree) {
+            fbEnd = arrow.get(event[1]);
+            fbFree = false;
+            freeBusyEvents.push({
+              start: fbStart,
+              end: fbEnd
+            });
+          }
+        }
+        if (fbFree) {
+          // We haven't finished the last block
+          fbEnd = arrow.get(event[1]);
+          freeBusyEvents.push({
+            start: fbStart,
+            end: fbEnd
+          });
+        }
+
+        let filteredEvents = freeBusyEvents.filter(event => (event.end.diff(event.start, 'seconds')) > (SMALLEST_BLOCK - 1));
+
+        let resultString = '';
+        let lastEvent = filteredEvents[0].start.clone().subtract(1, 'days');
+        for (let event of filteredEvents) {
+          if (lastEvent.format('DDD') < event.start.format('DDD')) {
+            resultString = resultString.slice(0, -1);
+            resultString += `\n${event.start.tz(tz).format('M/D')} `;
+          }
+          resultString += `${event.start.tz(tz).format('H:mm')}-${event.end.tz(tz).format('H:mm')},`;
+          lastEvent = event.start;
+        }
+        resultString = resultString.slice(0, -1);
+        console.log(resultString);
+
+        
     </script>
 </body>
 </html>
