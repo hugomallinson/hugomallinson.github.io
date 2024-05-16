@@ -7,6 +7,7 @@
             Free Time Finder
         </title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.3/jquery-ui.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.14.0/lib/msal-browser.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
         <script src="jquery.timepicker.min.js"></script>
@@ -19,6 +20,7 @@
             <p><input type="text" id="emailInput" placeholder="Enter email addresses"></p>
             No calls before: <input type="text" data-time-format="H:i" value='09:00' id='start-time'> or after
             <input type="text" data-time-format="H:i" value='17:00' id='end-time'><br>
+            Closest city to where they're based is: <input type='text' id='city' placeholder='New York City'>
             <button id="loginBtn">Get Available Times</button><br>
             <div>
             Bookmark this link: <a id="link"></a>
