@@ -1,0 +1,19 @@
+#bubbleContainer {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+.bubble {
+    background-color: lightgray;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px;
+    display: inline-block;
+    position: relative;
+}
+.bubble span {
+    margin: 10px;
+    font-color: red;
+    cursor: pointer;
+}
