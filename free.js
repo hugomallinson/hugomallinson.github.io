@@ -212,7 +212,7 @@ function find_free(result, startBy, endBy) {
                 start: original_end.startOf('day').plus(startBy),
                 end: original_end,
             };
-            if (new_event.end > original_end.startOf('day').plus(endBy) {
+            if (new_event.end > original_end.startOf('day').plus(endBy)) {
                 new_event.end = original_end.startOf('day').plus(endBy);
             }
             more_events.push(new_event);
