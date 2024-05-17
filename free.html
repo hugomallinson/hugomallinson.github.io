@@ -10,24 +10,58 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.3/jquery-ui.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.14.0/lib/msal-browser.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="jquery.timepicker.min.js"></script>
         <script src="free.js"></script>
         <link rel="stylesheet" href="jquery.timepicker.min.css">
         <link rel="stylesheet" href="free.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.3/themes/base/jquery-ui.min.css"/>
+        
     </head>
     <body>
-        <div id="bubbleContainer"></div>
-            <p><input type="text" id="emailInput" placeholder="Enter email addresses"></p>
-            No calls before: <input type="text" data-time-format="H:i" value='09:00' id='start-time'> or after
-            <input type="text" data-time-format="H:i" value='17:00' id='end-time'><br>
-            Closest city to where they're based is: <input type='text' id='city' placeholder='New York City'>
-            <button id="loginBtn">Get Available Times</button><br>
+        <div class="container text-left px-4 py-5 my-5">
+            <h1>Meeting Time Calculator</h1>
+            <p>Enter the email addresses of meeting attendees and the city the invitee lives in to see available meeting times.</p>
+            
+            <div class="row">
+                <div class="col">
+                    <p class="fw-light">
+                 <a id="link">Permanent link</a></p>
+            </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="emailInput" placeholder="Enter email addresses">
+                        <label for="emailInput">Email addresses</label>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">No calls before</span>
+                        <input type="text" class="form-control"data-time-format="H:i" value='09:00' id='start-time'>
+                        <span class="input-group-text">or after</span>
+                        <input type="text" class="form-control" data-time-format="H:i" value='17:00' id='end-time'>
+                    </div>    
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Closest city to where they're based is</span>
+                        <input class="form-control" type='text' id='city'>
+                    </div>
+                    <div >
+                        <button id="loginBtn" class="btn btn-primary btn-lg">Get Available Times</button><br>
+                    </div>
+                    
+                </div>
+                <div class="col">
+                  <div id="bubbleContainer"></div>
+                </div>
+              </div>
+            
             <div>
-            Bookmark this link: <a id="link"></a>
         </div>
         <p>
             <br>
             <code id='availability' style="white-space: pre-wrap;"></code>
         </p>
+    </div>
     </body>
 </html>
