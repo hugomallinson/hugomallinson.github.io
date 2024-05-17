@@ -203,7 +203,7 @@ function fix_event_times(event, startBy, endBy) {
             }).startOf('day'),
             end: original_end
         };
-        retval = retval.concat([event, fix_event_times(new_event)])
+        retval = retval.concat([event, fix_event_times(new_event, startBy, endBy)])
     } else {
         if (event.start > day_end) return retval;
         if (event.start < day_end && event.end > day_end) {
