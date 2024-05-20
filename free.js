@@ -190,22 +190,23 @@ function fix_event_times(event, startBy, endBy) {
     let day_start = event.start.startOf('day').plus(startBy);
     let day_end = event.start.startOf('day').plus(endBy);
     let retval = [];
-    if (event.end < day_start) return retval;
+    if (event.end <= day_start) return [];
     if (event.start < day_start) {
         event.start = day_start;
     }
     if (!event.start.hasSame(event.end, 'day')) {
         original_end = event.end;
-        event.end = day_end;
+        event.end = event.start.endOf('day');
         let new_event = {
             start: event.start.plus({
                 days: 1
             }).startOf('day'),
             end: original_end
         };
-        retval = retval.concat([event, fix_event_times(new_event, startBy, endBy)])
+        retval = retval.concat(fix_event_times(event, startBy, endBy));
+        retval = retval.concat(fix_event_times(new_event, startBy, endBy));
     } else {
-        if (event.start > day_end) return retval;
+        if (event.start >= day_end) return [];
         if (event.start < day_end && event.end > day_end) {
             event.end = day_end;
         }
@@ -225,10 +226,14 @@ function find_free(result, startBy, endBy, tz) {
     ]);
     events.sort((a, b) => a[1].localeCompare(b[1]));
     let status = Object.fromEntries(people.map(p => [p, 'free']));
+    let busyCount = Object.fromEntries(people.map(p => [p, 0]));;
     let freeBusyEvents = [];
     let fbFree = false;
+    let event = '';
     for (let event of events) {
-        status[event[0]] = event[2];
+        busyCount[event[0]] += (event[2] === 'busy') ? 1 : -1;
+        if (busyCount[event[0]] < 0) busyCount[event[0]] = 0;
+        status[event[0]] = (busyCount[event[0]] === 0) ? 'free' : 'busy';
         if (isAvailable(status) && !fbFree) {
             fbStart = DateTime.fromISO(event[1], {
                 zone: "UTC"
@@ -257,7 +262,7 @@ function find_free(result, startBy, endBy, tz) {
         });
     }
 
-    let filteredEvents = freeBusyEvents.filter(event => (event.end.diff(event.start, 'minutes')) > (SMALLEST_BLOCK - 1));
+    let filteredEvents = freeBusyEvents.filter(event => (event.end.diff(event.start, 'minutes').minutes > (SMALLEST_BLOCK - 1)));
 
     // move to destination time zone
     filteredEvents = filteredEvents.map(event => ({
@@ -271,7 +276,8 @@ function find_free(result, startBy, endBy, tz) {
     filteredEvents = more_events.toSorted(function(a, b) {
         return (a.start - b.start);
     });
-
+    
+    filteredEvents = filteredEvents.filter(event => (event.end.diff(event.start, 'minutes').minutes > (SMALLEST_BLOCK - 1)));
     let resultString = '';
     let lastEvent = filteredEvents[0].start.minus({
         days: 1
