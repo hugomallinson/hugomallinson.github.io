@@ -27,13 +27,25 @@ $(document).ready(function() {
     $('#start-time').timepicker();
     $('#end-time').timepicker();
     const params = new URLSearchParams(window.location.search);
-    const ppl_string = params.get('emails')
+    const ppl_string = params.get('emails');
+    const city_string = params.get('city');
+    const start_string = params.get('start');
+    const end_string = params.get('end');
     if (ppl_string) {
         people = ppl_string.split(',');
         for (let person of people) {
             add_bubble(person);
         }
         get_bubbles();
+    }
+    if (city_string) {
+        $('#city').val = city_string;
+    }
+    if (start_string) {
+        $('#start-time').val = start_string;
+    }
+    if (end_string) {
+        $('#end-time').val = end_string;
     }
 
     const emailInput = document.getElementById('emailInput');
@@ -100,9 +112,15 @@ function add_bubble(emailPart) {
 function get_bubbles() {
     const bubbles = document.querySelectorAll('.bubbleText');
     people = Array.from(bubbles).map(bubble => bubble.textContent);
-    const url = encodeURIComponent(people.join(','));
+    var params = {
+        emails: people.join(','),
+        start: $('#start').val,
+        end: $('#end').val,
+        city: $('#city').val
+    };
+    const url = $.params(params);
     $('#link').text('Permanent Link');
-    $('#link').attr('href', window.location.href.split('?')[0] + '?emails=' + url);
+    $('#link').attr('href', window.location.href.split('?')[0] + '?' + url);
 }
 
 function isValidEmail(email) {
