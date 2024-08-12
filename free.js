@@ -311,7 +311,7 @@ function find_free(result, startBy, endBy, tz) {
         lastEvent = event.start;
     }
     resultString = resultString.slice(0, -1);
-    return resultString;
+    return resultString.replace('\n', ' ' + $('#city').val() + '\n');
 }
 
 const zones = {
