@@ -39,13 +39,13 @@ $(document).ready(function() {
         get_bubbles();
     }
     if (city_string) {
-        $('#city').val = city_string;
+        $('#city').val() = city_string;
     }
     if (start_string) {
-        $('#start-time').val = start_string;
+        $('#start-time').val() = start_string;
     }
     if (end_string) {
-        $('#end-time').val = end_string;
+        $('#end-time').val() = end_string;
     }
 
     const emailInput = document.getElementById('emailInput');
@@ -115,9 +115,9 @@ function get_bubbles() {
     people = Array.from(bubbles).map(bubble => bubble.textContent);
     var params = {
         emails: people.join(',') || '',
-        start: $('#start-time').val || '',
-        end: $('#end-time').val || '',
-        city: $('#city').val || ''
+        start: $('#start-time').val() || '',
+        end: $('#end-time').val() || '',
+        city: $('#city').val() || ''
     };
     const url = $.param(params);
     $('#link').text('Permanent Link');
