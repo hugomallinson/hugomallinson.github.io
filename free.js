@@ -39,13 +39,13 @@ $(document).ready(function() {
         get_bubbles();
     }
     if (city_string) {
-        $('#city').val() = city_string;
+        $('#city').val(city_string);
     }
     if (start_string) {
-        $('#start-time').val() = start_string;
+        $('#start-time').val(start_string);
     }
     if (end_string) {
-        $('#end-time').val() = end_string;
+        $('#end-time').val(end_string);
     }
 
     const emailInput = document.getElementById('emailInput');
