@@ -118,7 +118,7 @@ function get_bubbles() {
         end: $('#end').val,
         city: $('#city').val
     };
-    const url = $.params(params);
+    const url = $.param(params);
     $('#link').text('Permanent Link');
     $('#link').attr('href', window.location.href.split('?')[0] + '?' + url);
 }
