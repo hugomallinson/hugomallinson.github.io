@@ -86,6 +86,7 @@ $(document).ready(function() {
         if (zones[$('#city').val()] === undefined) { 
             window.alert("Please enter a valid city.");
         } else {
+            get_bubbles();
             do_the_work();            
         }
     });
@@ -113,10 +114,10 @@ function get_bubbles() {
     const bubbles = document.querySelectorAll('.bubbleText');
     people = Array.from(bubbles).map(bubble => bubble.textContent);
     var params = {
-        emails: people.join(','),
-        start: $('#start').val,
-        end: $('#end').val,
-        city: $('#city').val
+        emails: people.join(',') || '',
+        start: $('#start').val || '',
+        end: $('#end').val || '',
+        city: $('#city').val || ''
     };
     const url = $.param(params);
     $('#link').text('Permanent Link');
