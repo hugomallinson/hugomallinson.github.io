@@ -115,8 +115,8 @@ function get_bubbles() {
     people = Array.from(bubbles).map(bubble => bubble.textContent);
     var params = {
         emails: people.join(',') || '',
-        start: $('#start').val || '',
-        end: $('#end').val || '',
+        start: $('#start-time').val || '',
+        end: $('#end-time').val || '',
         city: $('#city').val || ''
     };
     const url = $.param(params);
