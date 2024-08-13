@@ -311,6 +311,7 @@ function find_free(result, startBy, endBy, tz) {
         lastEvent = event.start;
     }
     resultString = resultString.slice(0, -1);
+    resultString = resultString.replace('\n', '');
     return resultString.replace('\n', ' ' + $('#city').val() + '\n');
 }
 
