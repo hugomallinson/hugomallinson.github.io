@@ -26,6 +26,7 @@ msalInstance.initialize();
 $(document).ready(function() {
     $('#start-time').timepicker();
     $('#end-time').timepicker();
+    $('#spinner').hide();
     const params = new URLSearchParams(window.location.search);
     const ppl_string = params.get('emails');
     const city_string = params.get('city');
@@ -62,6 +63,8 @@ $(document).ready(function() {
             document.getElementById("get_availability").click();
         }
     });
+
+    
 
     emailInput.addEventListener('input', () => {
         const value = emailInput.value;
@@ -131,6 +134,8 @@ function isValidEmail(email) {
 
 
 function do_the_work() {
+    $('#loginBtn').prop('disabled', true);
+    $('#spinner').show();
     msalInstance.loginPopup(loginRequest)
         .then(response => {
             account = msalInstance.getAllAccounts()[0];
@@ -148,6 +153,10 @@ function do_the_work() {
         })
         .catch(error => {
             console.error('Login error:', error);
+        })
+        .finally(() => {
+            $('#loginBtn').prop('disabled', false);
+            $('#spinner').hide();
         });
 }
 

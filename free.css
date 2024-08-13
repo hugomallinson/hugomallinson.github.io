@@ -17,3 +17,8 @@
     font-color: red;
     cursor: pointer;
 }
+
+#spinner {
+    display: inline-block;
+
+}
