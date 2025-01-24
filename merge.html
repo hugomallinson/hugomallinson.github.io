@@ -22,6 +22,9 @@
             border: 1px solid #ccc;
             background-color: #e9ecef;
         }
+        #spinner {
+            display: none;
+        }
         
     </style>
 </head>
@@ -31,6 +34,9 @@
           <div class="col-md-8">
               <button id="merge_button" class="btn btn-primary mb-3 d-none">Select folder to merge documents</button><br>
               <button id="copy_button" class="btn btn-primary mb-3 d-none">Copy markdown to clipboard</button>
+              <div id="spinner" class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
               <div id="output" class="border rounded d-none" style="white-space: pre;"></div>
               <div id="file-link" class="d-none"></div>
           </div>
@@ -104,7 +110,7 @@
 
         async function mergeAndUpload() {
             try {
-
+            showSpinner();
             const files = await listFilesInFolder(folderId);
             const markdownContents = await Promise.all(files.map(file => downloadAsMarkdown(file.id, file.name)));
             const mergedContent = markdownContents.map((content, index) => content).join('\n\n');
@@ -115,7 +121,9 @@
               document.getElementById('output').classList.remove('d-none');
           } catch (error) {
               console.error('Error during merge and upload:', error);
-          }
+          } finally {
+                hideSpinner();
+            }
             
         };
 
@@ -170,6 +178,14 @@
             return result.id; // Return the file ID
             
         };
+
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'block';
+        }
+
+        function hideSpinner() {
+            document.getElementById('spinner').style.display = 'none';
+        }
         
         function displayFileLink(fileId) {
             const fileLink = `https://drive.google.com/file/d/${fileId}/view`;
